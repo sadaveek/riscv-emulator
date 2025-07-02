@@ -18,6 +18,48 @@ def sign_extend(value, bits) :
     sign_bit = 1 << (bits - 1)
     return (value & (sign_bit - 1)) - (value & sign_bit)
 
+def debugger() :
+    print("\nEntered Debugger - type 'help' for options.")
+    while True:
+        cmd = input(">>> ").strip().lower()
+        if cmd == "help":
+            print("Available commands:")
+            print(" regs    →   show all registers")
+            print(" mem [addr]    →   show 16 bytes from memory at [addr]")
+            print(" pc    →   show current program counter")
+            print(" cont    →   continue execution")
+            print(" step    →   one step of instruction")
+            print(" exit    →   exit emulator")
+        elif cmd == "regs":
+            for i in range(32):
+                print(f"x{i} = {rg[i]}")
+        elif cmd.startswith("mem"):
+            try:
+                addr = int(cmd.split()[1], 0)
+                dump_memory(addr)
+            except:
+                print("Invalid address.")
+        elif cmd == "pc":
+            print(f"PC = {pc:#x}")
+        elif cmd == "cont":
+            break
+        elif cmd == "step":
+            instr = int.from_bytes(memory[pc:pc+4], byteorder='little')
+            execute(instr)
+            print(f"Stepped one instruction to PC = {pc:#x}")
+        elif cmd == "exit":
+            print("Exiting emulator...")
+            exit()
+        else:
+            print("Command not recognized.")
+
+def dump_memory(addr, length=16):
+    print(f"Memory at {hex(addr)}:")
+    for i in range(0, length, 4):
+        chunk = memory[addr+i:addr+i+4]
+        val = int.from_bytes(chunk, byteorder='little')
+        print(f" {hex(addr+i)}: {val:08x}")
+
 def execute(instr):
     global pc
     old_pc = pc
@@ -75,7 +117,7 @@ def execute(instr):
         elif (funct3 == 0x5) :
             if (imm >> 5 == 0x00) : #srli
                 rg[rd] = (rg[rs1] >> (imm & 0x1f)) & 0xffffffff
-            if (imm >> 5 == 0x20) : #srai
+            elif (imm >> 5 == 0x20) : #srai
                 val = rg[rs1] & 0xffffffff
                 if val & 0x80000000:
                     rg[rd] = (val >> (imm & 0x1f)) | (0xffffffff << (32 - (imm & 0x1f))) & 0xffffffff
@@ -118,9 +160,9 @@ def execute(instr):
         address = rg[rs1] + imm
         if (funct3 == 0x0) : #sb
             memory[address] = rg[rs2] & 0xff
-        if (funct3 == 0x1) : #sh
+        elif (funct3 == 0x1) : #sh
             memory[address:address + 2] = int.to_bytes(rg[rs2] & 0xffff, 2, "little")
-        if (funct3 == 0x2) : #sw
+        elif (funct3 == 0x2) : #sw
             memory[address:address + 4] = int.to_bytes(rg[rs2] & 0xffffffff, 4, "little")
 
     elif (opcode == 0x63) : #B-type instructions
@@ -145,7 +187,7 @@ def execute(instr):
         elif (funct3 == 0x7) : #bgeu
             pc = pc + imm if rg[rs1] & 0xffffffff >= rg[rs2] & 0xffffffff else pc
 
-    elif (opcode == 0x6f) :
+    elif (opcode == 0x6f) : #jal (J-type)
         rd = (instr >> 7) & 0x1f
         imm = ((instr >> 20) & 0x3ff) << 1
         imm |= ((instr >> 19) & 0x1) << 11
@@ -155,7 +197,7 @@ def execute(instr):
         rg[rd] = pc + 4
         pc += imm
     
-    elif (opcode == 0x67) :
+    elif (opcode == 0x67) : #jalr (I-type)
         rd = (instr >> 7) & 0x1f
         funct3 = (instr >> 12) & 0x7
         rs1 = (instr >> 15) & 0x1f
@@ -180,9 +222,10 @@ def execute(instr):
         if (imm == 0x0) :
             print("ECALL, ending execution")
             pc = len(memory)
-        if (imm == 0x1) :
+        elif (imm == 0x1) :
             print("EBREAK")
-            pc = len(memory)
+            pc += 4
+            debugger()
     if pc == old_pc:
         pc += 4
     rg[0] = 0
