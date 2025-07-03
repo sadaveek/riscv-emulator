@@ -16,6 +16,7 @@ _start:
     srai x9, x8, 1          # x9 = x8 >> 1 (arith)
     slti x10, x9, 1000      # x10 = x9 if x9 < 1000
     sltiu x11, x9, 2047     # x11 = x9 if x9 (unsigned) < 2047
+    ebreak
 
     # ----- R-type Operations -----
     add x12, x1, x3         # x12 = x1 + x3
@@ -79,7 +80,3 @@ jump_target:
     # ----- ECALL/EBREAK -----
     li x10, 0
     ecall                  # should exit
-
-    # unreachable
-    li x10, 1
-    ebreak
