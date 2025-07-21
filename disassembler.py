@@ -112,12 +112,7 @@ def disassemble(hexcode):
         funct3 = get_bits(instr, 12, 14)
         rs1 = get_bits(instr, 15, 19)
         rs2 = get_bits(instr, 20, 24)
-        imm = (
-            (get_bits(instr, 31, 31) << 12) |
-            (get_bits(instr, 7, 7) << 11) |
-            (get_bits(instr, 25, 30) << 5) |
-            (get_bits(instr, 8, 11) << 1)
-        )
+        imm = ((get_bits(instr, 31, 31) << 12) | (get_bits(instr, 7, 7) << 11) | (get_bits(instr, 25, 30) << 5) | (get_bits(instr, 8, 11) << 1))
         imm = sign_extend(imm, 13)
         mnemonic = INSTRUCTION_SET[opcode].get(funct3)
         if mnemonic:
@@ -129,12 +124,7 @@ def disassemble(hexcode):
         return f"{mnemonic} x{rd}, {imm}"
     elif opcode == 0x6F:  # J-type
         rd = get_bits(instr, 7, 11)
-        imm = (
-            (get_bits(instr, 31, 31) << 20) |
-            (get_bits(instr, 12, 19) << 12) |
-            (get_bits(instr, 20, 20) << 11) |
-            (get_bits(instr, 21, 30) << 1)
-        )
+        imm = ((get_bits(instr, 31, 31) << 20) | (get_bits(instr, 12, 19) << 12) | (get_bits(instr, 20, 20) << 11) | (get_bits(instr, 21, 30) << 1))
         imm = sign_extend(imm, 21)
         mnemonic = INSTRUCTION_SET[opcode]
         return f"{mnemonic} x{rd}, {imm}"

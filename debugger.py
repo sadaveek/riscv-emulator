@@ -1,12 +1,15 @@
 from disassembler import disassemble
 
+ABI_REGS = ['zero', 'ra', 'sp', 'gp', 'tp', 't0', 't1', 't2', 's0', 's1', 'a0', 'a1', 'a2', 'a3', 'a4',
+    'a5', 'a6', 'a7', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', 's11', 't3', 't4', 't5', 't6']
+
 def debugger(emu) :
     print("\nEntered Debugger - type 'help' for options.")
     while True:
         cmd = input(">>> ").strip().lower()
         if cmd == "help":
             print("Available commands:")
-            print(" regs    →   show all registers")
+            print(" regs    →   show all registers (type 'abi'/'numreg' for alternate register output format)")
             print(" mem [addr]    →   show 16 bytes from memory at [addr]")
             print(" dsm [hexcode]    →   disassemble [hexcode] to assembly")
             print(" pc    →   show current program counter")
@@ -14,8 +17,18 @@ def debugger(emu) :
             print(" step    →   one step of instruction")
             print(" exit    →   exit emulator")
         elif cmd == "regs":
-            for i in range(32):
-                print(f"x{i} = {emu.rg[i]}")
+            if emu.abi:
+                for i in range(32):
+                    print(f"{ABI_REGS[i]} = {emu.rg[i]}")
+            else:
+                for i in range(32):
+                    print(f"x{i} = {emu.rg[i]}")
+        elif cmd == "abi":
+            emu.abi = True
+            print("Swapped to ABI register naming")
+        elif cmd == "numreg":
+            emu.abi = False
+            print("Swapped to numerical register naming")
         elif cmd.startswith("mem"):
             try:
                 addr = int(cmd.split()[1], 0)

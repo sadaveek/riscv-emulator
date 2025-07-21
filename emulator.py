@@ -1,10 +1,12 @@
 from debugger import debugger
+from assembler import assemble
 
 class emulator:
-    def __init__(self):
-        self.memory = bytearray(4096)
+    def __init__(self, memory = 4096, abi = False):
+        self.memory = bytearray(memory)
         self.rg = [0] * 32
         self.pc = 0
+        self.abi = abi
 
     def sign_extend(self, value, bits):
         sign_bit = 1 << (bits - 1)
@@ -15,10 +17,18 @@ class emulator:
             program = f.read()
             self.memory[0:len(program)] = program
 
+    def assemble(self, input_path):
+        assemble(input_path)
+
     def run(self):
         while self.pc < len(self.memory):
             instr = int.from_bytes(self.memory[self.pc:self.pc+4], byteorder='little')
+            if (instr == 0):
+                break
             self.execute(instr)
+    
+    def debug(self):
+        debugger(self)
 
     def execute(self, instr):
         old_pc = self.pc
