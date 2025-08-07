@@ -3,7 +3,7 @@ def sign_extend(value, bits):
     return (value & (sign_bit - 1)) - (value & sign_bit)
 
 INSTRUCTION_SET = {
-    0x33: {  # R-type
+    0x33: {
         (0x0, 0x00): "add",
         (0x0, 0x20): "sub",
         (0x1, 0x00): "sll",
@@ -15,7 +15,7 @@ INSTRUCTION_SET = {
         (0x6, 0x00): "or",
         (0x7, 0x00): "and",
     },
-    0x13: {  # I-type
+    0x13: {
         0x0: "addi",
         0x2: "slti",
         0x3: "sltiu",
@@ -25,22 +25,22 @@ INSTRUCTION_SET = {
         0x1: "slli",
         0x5: {0x00: "srli", 0x20: "srai"},
     },
-    0x03: {  # I-type loads
+    0x03: {
         0x0: "lb",
         0x1: "lh",
         0x2: "lw",
         0x4: "lbu",
         0x5: "lhu",
     },
-    0x67: {  # I-type jalr
+    0x67: {
         0x0: "jalr",
     },
-    0x23: {  # S-type
+    0x23: {
         0x0: "sb",
         0x1: "sh",
         0x2: "sw",
     },
-    0x63: {  # B-type
+    0x63: {
         0x0: "beq",
         0x1: "bne",
         0x4: "blt",
@@ -48,10 +48,10 @@ INSTRUCTION_SET = {
         0x6: "bltu",
         0x7: "bgeu",
     },
-    0x37: "lui",      # U-type
-    0x17: "auipc",    # U-type
-    0x6F: "jal",      # J-type
-    0x73: {           # SYSTEM
+    0x37: "lui",
+    0x17: "auipc",
+    0x6F: "jal",
+    0x73: {
         0x0: {0: "ecall", 1: "ebreak"}
     }
 }
@@ -61,9 +61,10 @@ def get_bits(val, start, end):
     return (val >> start) & mask
 
 def disassemble(hexcode):
+    
     instr = int(hexcode, 16)
     opcode = get_bits(instr, 0, 6)
-    if opcode == 0x33:  # R-type
+    if opcode == 0x33:
         rd = get_bits(instr, 7, 11)
         funct3 = get_bits(instr, 12, 14)
         rs1 = get_bits(instr, 15, 19)
@@ -72,12 +73,12 @@ def disassemble(hexcode):
         mnemonic = INSTRUCTION_SET[opcode].get((funct3, funct7))
         if mnemonic:
             return f"{mnemonic} x{rd}, x{rs1}, x{rs2}"
-    elif opcode in (0x13, 0x03, 0x67):  # I-type
+    elif opcode in (0x13, 0x03, 0x67):
         rd = get_bits(instr, 7, 11)
         funct3 = get_bits(instr, 12, 14)
         rs1 = get_bits(instr, 15, 19)
         imm = sign_extend(get_bits(instr, 20, 31), 12)
-        if opcode == 0x13 and funct3 in (0x1, 0x5):  # shift immediate
+        if opcode == 0x13 and funct3 in (0x1, 0x5):
             shamt = get_bits(instr, 20, 24)
             funct7 = get_bits(instr, 25, 31)
             if funct3 == 0x1:
@@ -93,13 +94,13 @@ def disassemble(hexcode):
             else:
                 mnemonic = INSTRUCTION_SET[opcode].get(funct3)
             if mnemonic:
-                if opcode == 0x03:  # loads
+                if opcode == 0x03:
                     return f"{mnemonic} x{rd}, {imm}(x{rs1})"
-                elif opcode == 0x67:  # jalr
+                elif opcode == 0x67:
                     return f"{mnemonic} x{rd}, {imm}(x{rs1})"
                 else:
                     return f"{mnemonic} x{rd}, x{rs1}, {imm}"
-    elif opcode == 0x23:  # S-type
+    elif opcode == 0x23:
         funct3 = get_bits(instr, 12, 14)
         rs1 = get_bits(instr, 15, 19)
         rs2 = get_bits(instr, 20, 24)
@@ -108,7 +109,7 @@ def disassemble(hexcode):
         mnemonic = INSTRUCTION_SET[opcode].get(funct3)
         if mnemonic:
             return f"{mnemonic} x{rs2}, {imm}(x{rs1})"
-    elif opcode == 0x63:  # B-type
+    elif opcode == 0x63:
         funct3 = get_bits(instr, 12, 14)
         rs1 = get_bits(instr, 15, 19)
         rs2 = get_bits(instr, 20, 24)
@@ -117,18 +118,18 @@ def disassemble(hexcode):
         mnemonic = INSTRUCTION_SET[opcode].get(funct3)
         if mnemonic:
             return f"{mnemonic} x{rs1}, x{rs2}, {imm}"
-    elif opcode in (0x37, 0x17):  # U-type
+    elif opcode in (0x37, 0x17):
         rd = get_bits(instr, 7, 11)
         imm = get_bits(instr, 12, 31) << 12
         mnemonic = INSTRUCTION_SET[opcode]
         return f"{mnemonic} x{rd}, {imm}"
-    elif opcode == 0x6F:  # J-type
+    elif opcode == 0x6F:
         rd = get_bits(instr, 7, 11)
         imm = ((get_bits(instr, 31, 31) << 20) | (get_bits(instr, 12, 19) << 12) | (get_bits(instr, 20, 20) << 11) | (get_bits(instr, 21, 30) << 1))
         imm = sign_extend(imm, 21)
         mnemonic = INSTRUCTION_SET[opcode]
         return f"{mnemonic} x{rd}, {imm}"
-    elif opcode == 0x73:  # SYSTEM
+    elif opcode == 0x73:
         funct3 = get_bits(instr, 12, 14)
         imm = get_bits(instr, 20, 31)
         sys_map = INSTRUCTION_SET[opcode].get(funct3)
