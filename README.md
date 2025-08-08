@@ -112,10 +112,3 @@ If you find a bug or have a feature request, please open an issue on GitHub.
 ## 🛠 Requirements
 - Python 3.8+
 - No external dependencies
-
----
-
-## 📜 Changelog
-**v0.1.0**
-- Initial release
-- Added assembler, emulator, disassembler, and CLI
