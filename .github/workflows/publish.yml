@@ -2,13 +2,13 @@ name: Publish to PyPI
 
 on:
   release:
-    types: [published]  # Runs when you create a GitHub release
+    types: [published]
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write  # Needed for OIDC
+      id-token: write
       contents: read
 
     steps:
