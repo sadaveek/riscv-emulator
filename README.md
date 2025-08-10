@@ -72,10 +72,11 @@ disassemble("program.bin")
 riscv_emulator/
 ├── riscv_emulator/
 │   ├── __init__.py
-│   ├── main.py
 │   ├── assembler.py
-│   ├── emulator.py
+│   ├── debugger.py
 │   ├── disassembler.py
+│   ├── emulator.py
+│   ├── main.py
 ├── README.md
 ├── pyproject.toml
 ├── LICENSE
