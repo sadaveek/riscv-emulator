@@ -23,7 +23,7 @@ pip install riscv-emulator
 
 From source:
 ```bash
-git clone https://github.com/yourusername/riscv_emulator.git
+git clone https://github.com/samalneedi/riscv_emulator.git
 cd riscv_emulator
 pip install .
 ```
@@ -35,7 +35,7 @@ pip install .
 ### CLI Commands
 ```bash
 # Assemble a file
-riscv assemble program.s -o program.bin
+riscv assemble program.s
 
 # Run a binary
 riscv run program.bin
@@ -43,26 +43,20 @@ riscv run program.bin
 # Assemble and run in one step
 riscv full program.s
 
-# Disassemble a binary
-riscv disassemble program.bin
+# Disassemble a hexcode
+riscv disassemble [hexcode]
 ```
 
 ---
 
 ### Python API
 ```python
-from riscv_emulator import assemble, emulator, disassemble
+from riscv_emulator import emulator
 
-# Assemble
-assemble("program.s", "program.bin")
-
-# Run
 emu = emulator()
+emu.assemble("program.s")
 emu.load_program("program.bin")
 emu.run()
-
-# Disassemble
-disassemble("program.bin")
 ```
 
 ---
