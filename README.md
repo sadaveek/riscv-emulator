@@ -5,7 +5,7 @@ It can be used both as a **command-line tool** and as a **Python library**.
 
 ---
 
-## ✨ Features
+## 👋 Features
 - Assemble `.s` RISC-V assembly files into binary machine code
 - Run binary files on a simple RISC-V CPU emulator
 - Disassemble binary files back into readable assembly
